@@ -74,6 +74,16 @@ class SoundManager {
     }
   }
 
+  // Tactile bubble pop for quick actions and sign out
+  public playPop() {
+    this.playLike();
+  }
+
+  // Vault bookmark audio chime
+  public playBookmark() {
+    this.playChime();
+  }
+
   // Knowledge reaction audio with distinctive sonic frequency per reaction
   public playReaction(type: 'insightful' | 'useful' | 'mindOpening' | 'practical' | 'like') {
     if (this.isMuted) return;
@@ -327,6 +337,77 @@ class SoundManager {
       }, 850);
     } else {
       this.isAmbientPlaying = false;
+    }
+  }
+
+  // Futuristic digital chime for incoming AI responses
+  public playAiMessage() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      [587.33, 880, 1174.66].forEach((freq, idx) => {
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+        gain.gain.setValueAtTime(0.08, now + idx * 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.15);
+        osc.connect(gain);
+        gain.connect(this.ctx!.destination);
+        osc.start(now + idx * 0.05);
+        osc.stop(now + idx * 0.05 + 0.15);
+      });
+    } catch {
+      // Audio fallback
+    }
+  }
+
+  // Warm triumphant arpeggio for login and sign-up success
+  public playAuthSuccess() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+        gain.gain.setValueAtTime(0.12, now + idx * 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.25);
+        osc.connect(gain);
+        gain.connect(this.ctx!.destination);
+        osc.start(now + idx * 0.07);
+        osc.stop(now + idx * 0.07 + 0.25);
+      });
+    } catch {
+      // Audio fallback
+    }
+  }
+
+  // Subtle cyber warning for failed inputs
+  public playAuthError() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.linearRampToValueAtTime(140, now + 0.15);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.15);
+    } catch {
+      // Audio fallback
     }
   }
 

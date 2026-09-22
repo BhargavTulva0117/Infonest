@@ -38,6 +38,50 @@ export const CURRENT_USER = {
   ]
 };
 
+export const DEMO_USERS: Record<'learner' | 'creator' | 'architect', typeof CURRENT_USER> = {
+  learner: {
+    ...CURRENT_USER,
+    id: 'usr_me',
+    username: 'bhargav_code',
+    name: 'Bhargav Sai',
+    handle: '@bhargav_code',
+    role: 'AI & Systems Fellow',
+    knowledgeTokens: 4250,
+    knowledgeScore: 842,
+    streakDays: 14
+  },
+  creator: {
+    ...CURRENT_USER,
+    id: 'cr_1',
+    username: 'elena_ai',
+    name: 'Dr. Elena Rostova',
+    handle: '@elena_ai',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80',
+    role: 'Frontier AI Research Scientist',
+    bio: 'Ex-DeepMind Fellow. Crafting deep-dive masterclasses on autonomous reasoning architectures, tree-of-thought planning, and verifiable reward models.',
+    knowledgeTokens: 89200,
+    knowledgeScore: 985,
+    streakDays: 48,
+    skills: ['Reasoning Models', 'Process Verifiers', 'MCTS', 'PyTorch', 'Transformer Interp']
+  },
+  architect: {
+    ...CURRENT_USER,
+    id: 'cr_2',
+    username: 'marcus_vance',
+    name: 'Marcus Vance',
+    handle: '@marcus_vance',
+    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1600&q=80',
+    role: 'Principal Distributed Systems Lead',
+    bio: 'Specializing in planetary-scale stream processing, event meshes, and distributed consensus.',
+    knowledgeTokens: 34100,
+    knowledgeScore: 890,
+    streakDays: 32,
+    skills: ['Kafka', 'Raft Consensus', 'Kubernetes', 'Go', 'Zero-Copy IO']
+  }
+};
+
 export const MOCK_CREATORS: Creator[] = [
   {
     id: 'cr_1',

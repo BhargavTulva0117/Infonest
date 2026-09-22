@@ -8,6 +8,7 @@ import { StoryViewerModal } from '../feed/StoryViewerModal';
 import { CommentsModal } from '../feed/CommentsModal';
 import { AddToTrailModal } from '../modals/AddToTrailModal';
 import { SaveToVaultModal } from '../modals/SaveToVaultModal';
+import { CosmicChatDrawer } from '../ai/CosmicChatDrawer';
 import { useApp } from '../../context/AppContext';
 
 interface MainLayoutProps {
@@ -63,6 +64,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
 
       <AddToTrailModal />
       <SaveToVaultModal />
+
+      {/* Persistent Cosmos AI Assistant HUD Drawer */}
+      <CosmicChatDrawer />
     </div>
   );
 };

@@ -18,10 +18,15 @@ import {
   OrbitRoom,
   KnowledgeChallenge,
   KnowledgeProof,
-  KnowledgeReactionType
+  KnowledgeReactionType,
+  User,
+  SignupFormData,
+  AIChatMessage,
+  AIModelOption
 } from '../types';
 import {
   CURRENT_USER,
+  DEMO_USERS,
   MOCK_CREATORS,
   MOCK_STORIES,
   MOCK_POSTS,
@@ -38,6 +43,7 @@ import {
   MOCK_KNOWLEDGE_PROOFS
 } from '../data/mockData';
 import { sounds } from '../services/soundManager';
+import { queryCosmosAI } from '../services/aiChatService';
 
 interface AppContextType {
   role: UserRole;
@@ -117,6 +123,26 @@ interface AppContextType {
   toggleMute: () => void;
   isAmbientPlaying: boolean;
   toggleAmbient: () => void;
+
+  // Authentication
+  isAuthenticated: boolean;
+  login: (identifier: string, password?: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (data: SignupFormData) => Promise<{ success: boolean; error?: string }>;
+  logout: () => void;
+  demoLogin: (userType: 'learner' | 'creator' | 'architect') => void;
+
+  // Cosmos AI Chat (Connected to ChatGPT)
+  isAiChatOpen: boolean;
+  setIsAiChatOpen: (open: boolean) => void;
+  toggleAiChat: () => void;
+  aiMessages: AIChatMessage[];
+  sendAiMessage: (text: string) => Promise<void>;
+  clearAiChat: () => void;
+  aiApiKey: string;
+  setAiApiKey: (key: string) => void;
+  activeAiModel: AIModelOption;
+  setActiveAiModel: (model: AIModelOption) => void;
+  isAiStreaming: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -212,6 +238,165 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const playing = sounds.toggleAmbient();
     setIsAmbientPlaying(playing);
     showToast(playing ? 'Space drone ambient sound ON' : 'Ambient sound OFF', 'info');
+  };
+
+  // 4. Authentication State
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    const saved = localStorage.getItem('infonest_auth');
+    return saved !== null ? saved === 'true' : true;
+  });
+
+  const login = async (identifier: string, password?: string) => {
+    if (!identifier || identifier.trim().length === 0) {
+      sounds.playAuthError();
+      showToast('Please provide an email or username', 'warning');
+      return { success: false, error: 'Identifier required' };
+    }
+    sounds.playAuthSuccess();
+    setIsAuthenticated(true);
+    localStorage.setItem('infonest_auth', 'true');
+    showToast(`Welcome back, ${currentUser.name}!`, 'success');
+    return { success: true };
+  };
+
+  const signup = async (data: SignupFormData) => {
+    if (!data.fullName || !data.username || !data.email) {
+      sounds.playAuthError();
+      showToast('Please fill in all required fields', 'warning');
+      return { success: false, error: 'Missing fields' };
+    }
+
+    const newUser: typeof CURRENT_USER = {
+      ...CURRENT_USER,
+      id: `usr_${Date.now()}`,
+      name: data.fullName,
+      username: data.username,
+      handle: `@${data.username}`,
+      role: data.role === 'creator' ? 'Frontier Knowledge Creator' : 'Cosmos Learner',
+      knowledgeTokens: 4250 + 500,
+      skills: data.selectedInterests.length > 0 ? data.selectedInterests : CURRENT_USER.skills
+    };
+
+    setCurrentUser(newUser);
+    setRole(data.role);
+    setIsAuthenticated(true);
+    localStorage.setItem('infonest_auth', 'true');
+    localStorage.setItem('infonest_user', JSON.stringify(newUser));
+
+    sounds.playTriumph();
+    confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+    showToast(`Welcome to InfoNest, ${data.fullName}! +500 Welcome Tokens awarded 🎁`, 'success');
+    return { success: true };
+  };
+
+  const logout = () => {
+    sounds.playSwoop();
+    setIsAuthenticated(false);
+    localStorage.setItem('infonest_auth', 'false');
+    showToast('You have signed out of InfoNest.', 'info');
+  };
+
+  const demoLogin = (userType: 'learner' | 'creator' | 'architect') => {
+    sounds.playAuthSuccess();
+    const demo = DEMO_USERS[userType] || DEMO_USERS.learner;
+    setCurrentUser(demo);
+    setRole(userType === 'creator' ? 'creator' : 'student');
+    setIsAuthenticated(true);
+    localStorage.setItem('infonest_auth', 'true');
+    localStorage.setItem('infonest_user', JSON.stringify(demo));
+    showToast(`Switched persona to ${demo.name} (${demo.role})`, 'success');
+  };
+
+  // 5. Cosmos AI Chat State
+  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+  const [aiApiKey, setAiApiKeyState] = useState(() => localStorage.getItem('infonest_ai_key') || '');
+  const [activeAiModel, setActiveAiModel] = useState<AIModelOption>('gpt-4o');
+  const [isAiStreaming, setIsAiStreaming] = useState(false);
+  const [aiMessages, setAiMessages] = useState<AIChatMessage[]>([
+    {
+      id: 'msg_welcome',
+      sender: 'assistant',
+      content: "Greetings! I am **Cosmos AI**, connected directly to **ChatGPT (GPT-4o)** and InfoNest's frontier knowledge engine.\n\nAsk me anything about reasoning models, distributed architectures, roadmaps, or lecture concepts!",
+      timestamp: 'Just now',
+      suggestedActions: [
+        { label: 'Explain PRM vs ORM', actionType: 'vault' },
+        { label: 'Generate Kafka Roadmap', actionType: 'trail' }
+      ]
+    }
+  ]);
+
+  const setAiApiKey = (key: string) => {
+    setAiApiKeyState(key);
+    localStorage.setItem('infonest_ai_key', key);
+    sounds.playChime();
+    showToast(key ? 'ChatGPT API Key connected!' : 'API Key cleared. Using built-in engine.', 'info');
+  };
+
+  const toggleAiChat = () => {
+    sounds.playClick();
+    setIsAiChatOpen(prev => !prev);
+  };
+
+  const clearAiChat = () => {
+    sounds.playClick();
+    setAiMessages([
+      {
+        id: `msg_${Date.now()}`,
+        sender: 'assistant',
+        content: "Cosmos AI session reset. How may I accelerate your study trajectory today?",
+        timestamp: 'Just now'
+      }
+    ]);
+  };
+
+  const sendAiMessage = async (text: string) => {
+    if (!text.trim()) return;
+
+    const userMsg: AIChatMessage = {
+      id: `usr_${Date.now()}`,
+      sender: 'user',
+      content: text.trim(),
+      timestamp: 'Just now'
+    };
+
+    setAiMessages(prev => [...prev, userMsg]);
+    sounds.playClick();
+    setIsAiStreaming(true);
+
+    try {
+      const result = await queryCosmosAI({
+        message: text,
+        history: aiMessages,
+        apiKey: aiApiKey,
+        model: activeAiModel
+      });
+
+      const aiMsg: AIChatMessage = {
+        id: `ai_${Date.now()}`,
+        sender: 'assistant',
+        content: result.content,
+        timestamp: 'Just now',
+        modelUsed: aiApiKey ? activeAiModel : 'Cosmos-Reasoner-v1',
+        codeSnippet: result.codeSnippet,
+        suggestedActions: result.suggestedActions
+      };
+
+      setAiMessages(prev => [...prev, aiMsg]);
+      sounds.playAiMessage();
+    } catch (err: any) {
+      sounds.playAuthError();
+      setAiMessages(prev => [
+        ...prev,
+        {
+          id: `ai_${Date.now()}`,
+          sender: 'assistant',
+          content: `⚠️ Failed to get response: ${err.message || 'Unknown network error'}. Please check your connection or API key.`,
+          timestamp: 'Just now'
+        }
+      ]);
+    } finally {
+      setIsAiStreaming(false);
+    }
   };
 
   // Social interactions
@@ -870,7 +1055,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isMuted,
         toggleMute,
         isAmbientPlaying,
-        toggleAmbient
+        toggleAmbient,
+        isAuthenticated,
+        login,
+        signup,
+        logout,
+        demoLogin,
+        isAiChatOpen,
+        setIsAiChatOpen,
+        toggleAiChat,
+        aiMessages,
+        sendAiMessage,
+        clearAiChat,
+        aiApiKey,
+        setAiApiKey,
+        activeAiModel,
+        setActiveAiModel,
+        isAiStreaming
       }}
     >
       {children}

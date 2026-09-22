@@ -22,6 +22,7 @@ import { PostDetailPage } from './pages/PostDetailPage';
 import { MissionsPage } from './pages/MissionsPage';
 import { OrbitRoomsPage } from './pages/OrbitRoomsPage';
 import { ChallengesPage } from './pages/ChallengesPage';
+import { AuthPage } from './pages/AuthPage';
 
 // Creator Pages
 import { CreatorDashboardPage } from './pages/creator/CreatorDashboardPage';
@@ -38,6 +39,10 @@ export default function App() {
         {/* Core Student Routes */}
         <Route path="/" element={<Navigate to="/feed" replace />} />
         <Route path="/home" element={<Navigate to="/feed" replace />} />
+        <Route path="/login" element={<AuthPage />} />
+        <Route path="/signin" element={<AuthPage />} />
+        <Route path="/signup" element={<AuthPage />} />
+        <Route path="/auth" element={<AuthPage />} />
         <Route path="/feed" element={<FeedPage />} />
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/search" element={<SearchPage />} />

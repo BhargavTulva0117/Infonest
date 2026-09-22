@@ -413,3 +413,65 @@ export interface KnowledgeWeatherItem {
   arrow: '↑' | '↗' | '→';
   color: string;
 }
+
+// User & Authentication Types
+export interface User {
+  id: string;
+  username: string;
+  name: string;
+  email?: string;
+  handle: string;
+  avatar: string;
+  coverImage: string;
+  role: string;
+  bio: string;
+  knowledgeTokens: number;
+  knowledgeScore: number;
+  streakDays: number;
+  enrolledCoursesCount: number;
+  activeRoadmapsCount: number;
+  completedCertificatesCount: number;
+  skills: string[];
+}
+
+export interface LoginCredentials {
+  identifier: string;
+  password?: string;
+  rememberMe?: boolean;
+}
+
+export interface SignupFormData {
+  fullName: string;
+  username: string;
+  email: string;
+  password?: string;
+  role: 'student' | 'creator';
+  selectedInterests: string[];
+}
+
+// Cosmos AI Chat Types
+export type AIModelOption = 'gpt-4o' | 'gpt-4o-mini' | 'cosmos-reasoner-v1';
+
+export interface AIChatMessage {
+  id: string;
+  sender: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: string;
+  modelUsed?: string;
+  isStreaming?: boolean;
+  codeSnippet?: {
+    language: string;
+    code: string;
+  };
+  suggestedActions?: Array<{
+    label: string;
+    actionType: 'vault' | 'trail' | 'copy';
+    payload?: any;
+  }>;
+}
+
+export interface AIChatConfig {
+  apiKey?: string;
+  selectedModel: AIModelOption;
+  temperature: number;
+}
