@@ -114,6 +114,13 @@ interface AppContextType {
   toggleMilestoneComplete: (roadmapId: string, milestoneId: string) => void;
   cloneRoadmapToMyGoals: (roadmap: RoadmapData) => void;
   logStudyHours: (goalId: string, hours: number) => void;
+  createLearningGoal: (newGoalData: Partial<UserGoal>) => UserGoal;
+  updateLearningGoal: (goalId: string, updates: Partial<UserGoal>) => void;
+  deleteLearningGoal: (goalId: string) => void;
+  toggleGoalMilestone: (goalId: string, milestoneId: string) => void;
+  completeGoal: (goalId: string) => void;
+  completedGoalForCelebration: UserGoal | null;
+  setCompletedGoalForCelebration: (goal: UserGoal | null) => void;
   markNotificationRead: (id: string) => void;
   markAllNotificationsRead: () => void;
   deleteContentItem: (id: string) => void;
@@ -844,6 +851,181 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast(`Logged +${hours} hr study! Keep the streak going 🔥`);
   };
 
+  const createLearningGoal = (newGoalData: Partial<UserGoal>): UserGoal => {
+    sounds.playTriumph();
+    confetti({
+      particleCount: 80,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+
+    const goalId = `goal_${Date.now()}`;
+    const generatedMilestones = newGoalData.milestones && newGoalData.milestones.length > 0
+      ? newGoalData.milestones
+      : [
+          { id: `m_${goalId}_1`, title: `${newGoalData.roadmapTitle || 'Core'} - Foundations & Fundamentals`, status: 'in-progress' as const, progress: 20, estimatedHours: 4 },
+          { id: `m_${goalId}_2`, title: `Deep Dive & Architecture Exploration`, status: 'pending' as const, progress: 0, estimatedHours: 6 },
+          { id: `m_${goalId}_3`, title: `Practical Hands-on Projects & Implementation`, status: 'pending' as const, progress: 0, estimatedHours: 8 },
+          { id: `m_${goalId}_4`, title: `Capstone Mastery Verification`, status: 'pending' as const, progress: 0, estimatedHours: 10 }
+        ];
+
+    const newGoal: UserGoal = {
+      id: goalId,
+      roadmapTitle: newGoalData.roadmapTitle || 'New Learning Goal',
+      description: newGoalData.description || 'Master this domain through dedicated focus and practice.',
+      category: newGoalData.category || 'General',
+      roadmapId: newGoalData.roadmapId,
+      attachedCourseIds: newGoalData.attachedCourseIds || [],
+      attachedTrailIds: newGoalData.attachedTrailIds || [],
+      attachedChallengeIds: newGoalData.attachedChallengeIds || [],
+      learningMethod: newGoalData.learningMethod || 'roadmap',
+      priority: newGoalData.priority || 'important',
+      targetHoursPerWeek: newGoalData.targetHoursPerWeek || 8,
+      dailyTargetMinutes: newGoalData.dailyTargetMinutes || 30,
+      loggedHoursThisWeek: 0,
+      targetCompletionDate: newGoalData.targetCompletionDate || 'December 2026',
+      streakDays: 1,
+      completedTasks: 0,
+      totalTasks: generatedMilestones.length,
+      weeklyHistory: [0, 0, 0, 0, 0, 0, 0],
+      preferredDays: newGoalData.preferredDays || ['Monday', 'Tuesday', 'Thursday', 'Saturday'],
+      preferredTime: newGoalData.preferredTime || 'evening',
+      milestones: generatedMilestones,
+      isCompleted: false,
+      createdAt: new Date().toISOString()
+    };
+
+    setGoals(prev => [newGoal, ...prev]);
+
+    // Award +20 Knowledge Tokens
+    setCurrentUser(u => ({
+      ...u,
+      knowledgeTokens: u.knowledgeTokens + 20
+    }));
+
+    // Auto-generate related mission in learningMissions:
+    const newMissionTask = {
+      id: `task_${Date.now()}`,
+      title: `Dedicate ${newGoal.dailyTargetMinutes || 30} mins to "${newGoal.roadmapTitle}"`,
+      completed: false,
+      tokenReward: 20
+    };
+    setLearningMissions(prev => {
+      const daily = prev.find(m => m.type === 'daily');
+      if (daily) {
+        return prev.map(m =>
+          m.id === daily.id
+            ? { ...m, tasks: [newMissionTask, ...m.tasks] }
+            : m
+        );
+      }
+      return prev;
+    });
+
+    showToast(`Goal "${newGoal.roadmapTitle}" launched into orbit! +20 KT awarded`, 'success');
+    return newGoal;
+  };
+
+  const updateLearningGoal = (goalId: string, updates: Partial<UserGoal>) => {
+    sounds.playClick();
+    setGoals(prev => prev.map(g => (g.id === goalId ? { ...g, ...updates } : g)));
+    showToast('Learning goal updated', 'info');
+  };
+
+  const deleteLearningGoal = (goalId: string) => {
+    sounds.playPop();
+    setGoals(prev => prev.filter(g => g.id !== goalId));
+    showToast('Goal removed from active learning orbit', 'info');
+  };
+
+  const completeGoal = (goalId: string) => {
+    sounds.playTriumph();
+    confetti({
+      particleCount: 120,
+      spread: 100,
+      origin: { y: 0.5 }
+    });
+
+    const targetGoal = goals.find(g => g.id === goalId);
+    if (!targetGoal) return;
+
+    const proofNumber = 1000 + knowledgeProofs.length + 1;
+    const newProof: KnowledgeProof = {
+      id: `proof_${Date.now()}`,
+      proofNumber,
+      title: targetGoal.roadmapTitle,
+      completedDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+      lecturesCount: targetGoal.milestones?.length || 6,
+      projectsCount: 2,
+      quizzesCount: 4,
+      totalHours: Math.round(targetGoal.loggedHoursThisWeek * 4) || 48,
+      verificationHash: `0x${Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
+      badgeColor: 'cyan'
+    };
+
+    setKnowledgeProofs(prev => [newProof, ...prev]);
+
+    setGoals(prev =>
+      prev.map(g =>
+        g.id === goalId
+          ? {
+              ...g,
+              isCompleted: true,
+              completedTasks: g.totalTasks,
+              completionProofId: newProof.id,
+              milestones: g.milestones?.map(m => ({ ...m, status: 'completed', progress: 100 }))
+            }
+          : g
+      )
+    );
+
+    setCurrentUser(u => ({
+      ...u,
+      knowledgeTokens: u.knowledgeTokens + 250
+    }));
+
+    setCompletedGoalForCelebration({ ...targetGoal, isCompleted: true, completionProofId: newProof.id });
+    showToast(`🏆 Goal Complete! +250 KT awarded & Knowledge Proof #${proofNumber} minted!`, 'success');
+  };
+
+  const toggleGoalMilestone = (goalId: string, milestoneId: string) => {
+    sounds.playClick();
+    setGoals(prev =>
+      prev.map(g => {
+        if (g.id !== goalId || !g.milestones) return g;
+        const updatedMilestones = g.milestones.map(m => {
+          if (m.id === milestoneId) {
+            const nextStatus = m.status === 'completed' ? 'in-progress' : 'completed';
+            if (nextStatus === 'completed') {
+              sounds.playChime();
+            }
+            return {
+              ...m,
+              status: nextStatus as 'completed' | 'in-progress',
+              progress: nextStatus === 'completed' ? 100 : 50
+            };
+          }
+          return m;
+        });
+        const completedCount = updatedMilestones.filter(m => m.status === 'completed').length;
+        const allCompleted = completedCount === updatedMilestones.length;
+
+        const updatedGoal = {
+          ...g,
+          milestones: updatedMilestones,
+          completedTasks: completedCount,
+          isCompleted: allCompleted
+        };
+
+        if (allCompleted && !g.isCompleted) {
+          setTimeout(() => completeGoal(goalId), 300);
+        }
+
+        return updatedGoal;
+      })
+    );
+  };
+
   const markNotificationRead = (id: string) => {
     setNotifications(prev =>
       prev.map(n => (n.id === id ? { ...n, read: true } : n))
@@ -876,7 +1058,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [orbitRooms] = useState<OrbitRoom[]>(MOCK_ORBIT_ROOMS);
   const [challenges, setChallenges] = useState<KnowledgeChallenge[]>(MOCK_KNOWLEDGE_CHALLENGES);
-  const [knowledgeProofs] = useState<KnowledgeProof[]>(MOCK_KNOWLEDGE_PROOFS);
+  const [knowledgeProofs, setKnowledgeProofs] = useState<KnowledgeProof[]>(() => {
+    const saved = localStorage.getItem('infonest_proofs');
+    return saved ? JSON.parse(saved) : MOCK_KNOWLEDGE_PROOFS;
+  });
+  const [completedGoalForCelebration, setCompletedGoalForCelebration] = useState<UserGoal | null>(null);
+
+  useEffect(() => {
+    localStorage.setItem('infonest_proofs', JSON.stringify(knowledgeProofs));
+  }, [knowledgeProofs]);
 
   const [activeTrailModalPost, setActiveTrailModalPost] = useState<Post | null>(null);
   const [activeVaultModalPost, setActiveVaultModalPost] = useState<Post | null>(null);
@@ -1049,6 +1239,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         toggleMilestoneComplete,
         cloneRoadmapToMyGoals,
         logStudyHours,
+        createLearningGoal,
+        updateLearningGoal,
+        deleteLearningGoal,
+        toggleGoalMilestone,
+        completeGoal,
+        completedGoalForCelebration,
+        setCompletedGoalForCelebration,
         markNotificationRead,
         markAllNotificationsRead,
         deleteContentItem,

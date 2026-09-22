@@ -1062,15 +1062,59 @@ export const MOCK_COURSES: Course[] = [
 export const MOCK_GOALS: UserGoal[] = [
   {
     id: 'goal_1',
-    roadmapTitle: 'Full-Stack Generative AI Architect (2025 - 2026)',
+    roadmapTitle: 'Master Generative AI Architectures',
+    description: 'Master frontier reasoning models, PRMs, agentic workflows, and production RAG systems.',
+    category: 'AI / ML',
     roadmapId: 'rd_ai_architect',
+    attachedCourseIds: ['crs_1'],
+    learningMethod: 'roadmap',
+    priority: 'critical',
     targetHoursPerWeek: 12,
+    dailyTargetMinutes: 60,
     loggedHoursThisWeek: 9.5,
-    targetCompletionDate: 'November 2026',
+    targetCompletionDate: '30 December 2026',
     streakDays: 14,
-    completedTasks: 8,
-    totalTasks: 15,
-    weeklyHistory: [1.5, 2.0, 1.0, 2.5, 1.5, 1.0, 0] // Mon-Sun
+    completedTasks: 4,
+    totalTasks: 7,
+    weeklyHistory: [1.5, 2.0, 1.0, 2.5, 1.5, 1.0, 0], // Mon-Sun
+    preferredDays: ['Monday', 'Tuesday', 'Thursday', 'Saturday'],
+    preferredTime: 'evening',
+    milestones: [
+      { id: 'm1', title: 'Python & Linear Algebra Foundations', status: 'completed', progress: 100, estimatedHours: 8, relatedContent: 'Python Vectorization Masterclass' },
+      { id: 'm2', title: 'Transformer Architecture & Self-Attention', status: 'completed', progress: 100, estimatedHours: 12, relatedContent: 'Multi-Head Attention Deep Dive' },
+      { id: 'm3', title: 'Fine-Tuning with LoRA & QLoRA', status: 'completed', progress: 100, estimatedHours: 10, relatedContent: 'PEFT & Quantization Guide' },
+      { id: 'm4', title: 'Process Reward Models (PRMs) & Reasoning Search', status: 'completed', progress: 100, estimatedHours: 15, relatedContent: 'PRM Latent Search Trees' },
+      { id: 'm5', title: 'Production Graph-RAG & Vector Retrieval', status: 'in-progress', progress: 65, estimatedHours: 14, relatedContent: 'Hybrid BM25 + Dense Search' },
+      { id: 'm6', title: 'Multi-Agent Consensus Protocols', status: 'pending', progress: 0, estimatedHours: 16, relatedContent: 'Agent Swarm Coordination' },
+      { id: 'm7', title: 'Capstone: Autonomous Research Agent', status: 'pending', progress: 0, estimatedHours: 20, relatedContent: 'End-to-End Synthesis Agent' }
+    ]
+  },
+  {
+    id: 'goal_2',
+    roadmapTitle: 'Distributed Systems & Apache Kafka Mastery',
+    description: 'Build fault-tolerant event streams, partition strategies, consensus mechanisms, and high-throughput consumers.',
+    category: 'System Design',
+    roadmapId: 'rd_kafka_mastery',
+    learningMethod: 'mixed',
+    priority: 'important',
+    targetHoursPerWeek: 8,
+    dailyTargetMinutes: 45,
+    loggedHoursThisWeek: 6.0,
+    targetCompletionDate: '15 January 2027',
+    streakDays: 8,
+    completedTasks: 3,
+    totalTasks: 6,
+    weeklyHistory: [1.0, 1.0, 1.5, 1.0, 0.5, 1.0, 0],
+    preferredDays: ['Monday', 'Wednesday', 'Friday', 'Sunday'],
+    preferredTime: 'morning',
+    milestones: [
+      { id: 'm2_1', title: 'Distributed Log Mechanics & Partitions', status: 'completed', progress: 100, estimatedHours: 6 },
+      { id: 'm2_2', title: 'Consumer Rebalance Protocols & Heartbeats', status: 'completed', progress: 100, estimatedHours: 8 },
+      { id: 'm2_3', title: 'Exactly-Once Semantics (EOS) & Transactions', status: 'completed', progress: 100, estimatedHours: 10 },
+      { id: 'm2_4', title: 'Kafka Streams & Windowed Aggregations', status: 'in-progress', progress: 40, estimatedHours: 12 },
+      { id: 'm2_5', title: 'Cluster Scaling & KRaft Quorum Controller', status: 'pending', progress: 0, estimatedHours: 10 },
+      { id: 'm2_6', title: 'Capstone: 100k msg/sec Telemetry Pipeline', status: 'pending', progress: 0, estimatedHours: 18 }
+    ]
   }
 ];
 

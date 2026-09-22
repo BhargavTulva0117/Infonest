@@ -280,17 +280,40 @@ export interface Course {
   progressPercent: number;
 }
 
+export interface GoalMilestone {
+  id: string;
+  title: string;
+  status: 'completed' | 'in-progress' | 'pending';
+  progress: number;
+  estimatedHours: number;
+  relatedContent?: string;
+}
+
 export interface UserGoal {
   id: string;
   roadmapTitle: string;
+  description?: string;
+  category?: string;
   roadmapId?: string;
+  attachedCourseIds?: string[];
+  attachedTrailIds?: string[];
+  attachedChallengeIds?: string[];
+  learningMethod?: 'course' | 'roadmap' | 'trail' | 'practice' | 'project' | 'mixed';
+  priority?: 'normal' | 'important' | 'critical';
   targetHoursPerWeek: number;
+  dailyTargetMinutes?: number;
   loggedHoursThisWeek: number;
   targetCompletionDate: string;
   streakDays: number;
   completedTasks: number;
   totalTasks: number;
   weeklyHistory: number[]; // Hours logged per day Mon-Sun
+  preferredDays?: string[];
+  preferredTime?: 'morning' | 'afternoon' | 'evening' | 'night' | 'custom';
+  milestones?: GoalMilestone[];
+  isCompleted?: boolean;
+  completionProofId?: string;
+  createdAt?: string;
 }
 
 export interface NotificationItem {

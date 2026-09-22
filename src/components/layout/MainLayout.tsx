@@ -9,6 +9,7 @@ import { CommentsModal } from '../feed/CommentsModal';
 import { AddToTrailModal } from '../modals/AddToTrailModal';
 import { SaveToVaultModal } from '../modals/SaveToVaultModal';
 import { CosmicChatDrawer } from '../ai/CosmicChatDrawer';
+import { CosmicBackground } from './CosmicBackground';
 import { useApp } from '../../context/AppContext';
 
 interface MainLayoutProps {
@@ -27,7 +28,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   const { activeStory, setActiveStory, activeCommentsPostId, setActiveCommentsPostId } = useApp();
 
   return (
-    <div className="min-h-screen bg-[#07080D] text-slate-100 flex flex-col selection:bg-purple-600 selection:text-white pb-20 lg:pb-0">
+    <div className="min-h-screen bg-[#07080D] text-slate-100 flex flex-col selection:bg-purple-600 selection:text-white pb-20 lg:pb-0 relative">
+      {/* Subtle Atmospheric Cosmic Background Language */}
+      <CosmicBackground />
+
       {/* Persistent Glass Navigation */}
       <Navbar />
 

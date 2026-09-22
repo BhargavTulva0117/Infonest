@@ -48,7 +48,7 @@ export const RightRail: React.FC = () => {
               Weekly Goal Pace
             </span>
             <span className="text-xs font-mono font-semibold text-slate-300">
-              9.5h / 12h
+              {primaryGoal ? `${primaryGoal.loggedHoursThisWeek}h / ${primaryGoal.targetHoursPerWeek}h` : '9.5h / 12h'}
             </span>
           </div>
 

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { sounds } from '../../services/soundManager';
+import { InfoNestLogo } from '../brand/InfoNestLogo';
 
 export const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -87,25 +88,9 @@ export const Navbar: React.FC = () => {
         <Link
           to="/feed"
           onClick={() => sounds.playClick()}
-          className="flex items-center gap-3 group select-none shrink-0"
+          className="flex items-center group select-none shrink-0"
         >
-          <div className="relative flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 p-[1px] shadow-glow-purple group-hover:scale-105 transition-transform duration-300">
-            <div className="w-full h-full bg-[#090B12] rounded-[15px] flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-purple-400 group-hover:text-cyan-300 transition-colors" />
-            </div>
-            <div className="absolute -inset-1 bg-purple-500/20 rounded-2xl blur-sm -z-10 group-hover:bg-purple-500/40 transition-colors" />
-          </div>
-          <div>
-            <span className="text-2xl font-black tracking-tight text-white flex items-center gap-1.5 font-sans">
-              Info<span className="text-gradient-purple">Nest</span>
-              <span className="text-[10px] uppercase font-mono tracking-widest px-1.5 py-0.5 rounded bg-purple-500/10 border border-purple-500/30 text-purple-300 ml-1">
-                Cosmos
-              </span>
-            </span>
-            <p className="text-[11px] font-mono text-slate-400 -mt-0.5 hidden sm:block">
-              Your Knowledge Universe
-            </p>
-          </div>
+          <InfoNestLogo variant="full" size="sm" interactive />
         </Link>
 
         {/* Global Search */}

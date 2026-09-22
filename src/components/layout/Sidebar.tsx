@@ -23,7 +23,10 @@ import { useApp } from '../../context/AppContext';
 import { sounds } from '../../services/soundManager';
 
 export const Sidebar: React.FC = () => {
-  const { role, currentUser } = useApp();
+  const { role, currentUser, goals, learningMissions } = useApp();
+  const primaryGoal = goals[0];
+  const activeMission = learningMissions.find(m => m.type === 'daily') || learningMissions[0];
+  const missionTitle = activeMission?.tasks?.[0]?.title || 'Complete daily study mission';
 
   const studentNavItems = [
     { to: '/feed', label: 'The Nest', icon: Sparkles },
@@ -145,18 +148,20 @@ export const Sidebar: React.FC = () => {
           <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-1 border-t border-white/5">
             <div>
               <span className="text-[10px] text-slate-400 block">Weekly Pace</span>
-              <span className="text-slate-200 font-bold">9.5h / 12h</span>
+              <span className="text-slate-200 font-bold">
+                {primaryGoal ? `${primaryGoal.loggedHoursThisWeek}h / ${primaryGoal.targetHoursPerWeek}h` : '9.5h / 12h'}
+              </span>
             </div>
             <div>
               <span className="text-[10px] text-slate-400 block">Tokens</span>
-              <span className="text-amber-300 font-bold">4,250 KT</span>
+              <span className="text-amber-300 font-bold">{currentUser.knowledgeTokens.toLocaleString()} KT</span>
             </div>
           </div>
 
           <div className="mt-2 pt-2 border-t border-white/5">
             <span className="text-[10px] text-slate-400 block font-mono">Current Mission:</span>
             <p className="text-[11px] text-slate-200 font-medium truncate mt-0.5">
-              Complete System Design Module 4
+              {missionTitle}
             </p>
           </div>
         </div>

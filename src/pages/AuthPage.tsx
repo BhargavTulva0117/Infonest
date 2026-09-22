@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { sounds } from '../services/soundManager';
+import { InfoNestLogo } from '../components/brand/InfoNestLogo';
+import { CosmicBackground } from '../components/layout/CosmicBackground';
 import {
   Sparkles,
   Lock,
@@ -94,37 +96,23 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode = 'login' }) => 
 
   return (
     <div className="min-h-screen bg-[#07080D] text-slate-100 flex flex-col justify-between relative overflow-hidden font-sans select-none">
-      {/* Dynamic Cyber-Luxury Ambient Glow Orbs */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-600/20 rounded-full blur-[130px] pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-cyan-500/20 rounded-full blur-[130px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[160px] pointer-events-none" />
+      {/* Dynamic Cyber-Luxury Atmospheric Background */}
+      <CosmicBackground intensity="pronounced" />
 
       {/* Top Brand Bar */}
       <header className="px-6 py-6 flex items-center justify-between z-10 max-w-6xl mx-auto w-full">
         <Link
           to="/feed"
           onClick={() => sounds.playClick()}
-          className="flex items-center gap-3 group"
+          className="flex items-center group"
         >
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-500 to-cyan-400 p-0.5 shadow-glow-purple group-hover:scale-105 transition-transform">
-            <div className="w-full h-full bg-[#07080D] rounded-[14px] flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-cyan-400 animate-pulse" />
-            </div>
-          </div>
-          <div>
-            <span className="text-xl font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent block">
-              InfoNest
-            </span>
-            <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-400 -mt-1 block">
-              Your Knowledge Universe
-            </span>
-          </div>
+          <InfoNestLogo variant="full" size="sm" interactive />
         </Link>
 
         <Link
           to="/feed"
           onClick={() => sounds.playClick()}
-          className="text-xs font-mono text-slate-400 hover:text-white px-3.5 py-1.5 rounded-xl border border-white/10 hover:border-white/20 transition-all flex items-center gap-1.5"
+          className="text-xs font-mono text-slate-400 hover:text-white px-3.5 py-1.5 rounded-xl border border-white/10 hover:border-white/20 transition-all flex items-center gap-1.5 bg-white/5"
         >
           <span>Continue as Guest</span>
           <ArrowRight className="w-3.5 h-3.5" />
@@ -136,6 +124,21 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode = 'login' }) => 
         <div className="w-full max-w-xl glass-panel rounded-3xl border border-white/10 p-6 sm:p-10 shadow-2xl relative overflow-hidden backdrop-blur-2xl">
           {/* Subtle Cyber Accent Line */}
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-purple-500" />
+
+          {/* Prominent Official Brand Hero with Breathing Glow */}
+          <div className="flex flex-col items-center justify-center text-center mb-8">
+            <div className="relative p-3 rounded-3xl bg-[#090C18]/80 border border-white/10 shadow-[0_0_50px_rgba(168,85,247,0.35)] animate-[pulse_4s_ease-in-out_infinite] mb-4">
+              <InfoNestLogo variant="icon" size="xl" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+              Info<span className="bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-300 bg-clip-text text-transparent">Nest</span>
+            </h1>
+            <p className="text-xs sm:text-sm font-mono text-slate-400 mt-1.5 flex items-center gap-1.5">
+              <span>Learn Together.</span>
+              <span className="text-purple-400">Share Freely.</span>
+              <span className="text-cyan-300">Grow Further.</span>
+            </p>
+          </div>
 
           {/* Mode Tabs */}
           <div className="flex p-1 rounded-2xl bg-white/5 border border-white/10 mb-8">
